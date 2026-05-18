@@ -1,0 +1,568 @@
+{
+  "projects": [
+    {
+      "id": "local-1776589927628-3cf6a9",
+      "title": "mf",
+      "description": "yeaj",
+      "coordinator_name": "Subhiksha",
+      "deadline": "2026-06-28",
+      "drive_folder_link": null,
+      "google_form_link": null,
+      "status": "active",
+      "created_at": "2026-04-19T09:12:07.628Z",
+      "coordinator_id": null
+    },
+    {
+      "id": "local-1776589630021-e1901f",
+      "title": "kk",
+      "description": "knf",
+      "coordinator_name": "Subhiksha",
+      "deadline": "2026-04-21",
+      "drive_folder_link": null,
+      "google_form_link": null,
+      "status": "active",
+      "created_at": "2026-04-19T09:07:10.021Z",
+      "coordinator_id": null
+    },
+    {
+      "id": "local-1776589534810-5f0b55",
+      "title": "DENTAL PROJECT",
+      "description": "fun",
+      "coordinator_name": "Subhiksha",
+      "deadline": "2026-06-28",
+      "drive_folder_link": null,
+      "google_form_link": null,
+      "status": "active",
+      "created_at": "2026-04-19T09:05:34.810Z",
+      "coordinator_id": null
+    },
+    {
+      "id": "local-1776587795384-6779a8",
+      "title": "ks",
+      "description": "s",
+      "coordinator_name": "Subhiksha",
+      "deadline": "2026-04-23",
+      "drive_folder_link": null,
+      "google_form_link": null,
+      "status": "active",
+      "created_at": "2026-04-19T08:36:35.384Z",
+      "coordinator_id": null
+    },
+    {
+      "id": "local-1776587450402-bf2751",
+      "title": "WEB DESGIN",
+      "description": "ok",
+      "coordinator_name": "Subhiksha",
+      "deadline": "2026-08-14",
+      "drive_folder_link": null,
+      "google_form_link": null,
+      "status": "active",
+      "created_at": "2026-04-19T08:30:50.402Z",
+      "coordinator_id": null
+    },
+    {
+      "id": "local-1776586678505-c071c3",
+      "title": "WEB PROJECT",
+      "description": "full structure",
+      "coordinator_name": "Subhiksha",
+      "deadline": "2026-08-14",
+      "drive_folder_link": null,
+      "google_form_link": null,
+      "status": "active",
+      "created_at": "2026-04-19T08:17:58.505Z",
+      "coordinator_id": null
+    },
+    {
+      "id": "local-1776443086707-c2af1e",
+      "title": "campus",
+      "description": "ss",
+      "deadline": "2026-04-22",
+      "status": "active",
+      "created_at": "2026-04-17T16:24:46.707Z",
+      "coordinator_id": null,
+      "coordinator_name": "Subhiksha",
+      "drive_folder_link": "xryh",
+      "google_form_link": "jj"
+    }
+  ],
+  "modules": [],
+  "tasks": [
+    {
+      "id": "local-task-1776443920909-3df3",
+      "module_id": null,
+      "project_id": "local-1776443086707-c2af1e",
+      "title": "Build login API integration",
+      "description": "Connect login form to API",
+      "assigned_student_id": "local-student-s70607162-gmail-com",
+      "deadline": "2026-04-18",
+      "status": "completed",
+      "drive_folder_link": null,
+      "created_at": "2026-04-17T16:38:40.909Z"
+    }
+  ],
+  "projectStudents": [
+    {
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": "local-student-s70607162-gmail-com",
+      "role": null,
+      "module_name": "login",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-17T16:24:46.708Z"
+    },
+    {
+      "project_id": "local-1776586678505-c071c3",
+      "student_id": "local-student-akshayjanu1408-gmail-com",
+      "role": null,
+      "module_name": "PATENT PORTAL",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T08:17:58.506Z"
+    },
+    {
+      "project_id": "local-1776586678505-c071c3",
+      "student_id": "local-student-stardeepan22-gmail-com",
+      "role": null,
+      "module_name": "DOCTOR ",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T08:17:58.506Z"
+    },
+    {
+      "project_id": "local-1776586678505-c071c3",
+      "student_id": "local-student-dineshbalu1806-gmail-com",
+      "role": null,
+      "module_name": "ADMIN",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T08:17:58.506Z"
+    },
+    {
+      "project_id": "local-1776586678505-c071c3",
+      "student_id": "local-student-s70607162-gmail-com",
+      "role": null,
+      "module_name": "OVERALL BUGS ",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T08:17:58.506Z"
+    },
+    {
+      "project_id": "local-1776587450402-bf2751",
+      "student_id": "local-student-s70607162-gmail-com",
+      "role": null,
+      "module_name": "patient ",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T08:30:50.402Z"
+    },
+    {
+      "project_id": "local-1776587450402-bf2751",
+      "student_id": "local-student-akshayjanu1408-gmail-com",
+      "role": null,
+      "module_name": "doctor ",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T08:30:50.402Z"
+    },
+    {
+      "project_id": "local-1776587795384-6779a8",
+      "student_id": "local-student-ss-gmail-com",
+      "role": null,
+      "module_name": "dkn",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T08:36:35.384Z"
+    },
+    {
+      "project_id": "local-1776589534810-5f0b55",
+      "student_id": "local-student-subhiksha278-gmail-com",
+      "role": null,
+      "module_name": "FRONTEND",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T09:05:34.810Z"
+    },
+    {
+      "project_id": "local-1776589534810-5f0b55",
+      "student_id": "local-student-akshayjanu1408-gmail-com",
+      "role": null,
+      "module_name": "BACKEND ",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T09:05:34.810Z"
+    },
+    {
+      "project_id": "local-1776589630021-e1901f",
+      "student_id": "local-student-subhiksha254-gmail-com",
+      "role": null,
+      "module_name": ",k",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T09:07:10.021Z"
+    },
+    {
+      "project_id": "local-1776589927628-3cf6a9",
+      "student_id": "local-student-subhiksha254-gmail-com",
+      "role": null,
+      "module_name": "full staack",
+      "student_note": null,
+      "drive_folder_link": null,
+      "github_link": null,
+      "joined_at": "2026-04-19T09:12:07.628Z"
+    }
+  ],
+  "submissions": [
+    {
+      "id": "local-submission-1776525179771-80e5",
+      "project_id": "local-1776443086707-c2af1e",
+      "task_id": "local-task-1776443920909-3df3",
+      "student_id": "b440d3e5-00e8-4bef-bd19-44a65371c57d",
+      "student_email": "s70607162@gmail.com",
+      "task": "Build login API integration",
+      "title": "Build login API integration",
+      "type": "Pull Request",
+      "pr_link": "https://github.com",
+      "summary": "xdr",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T15:12:59.771Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T15:13:11.408Z"
+    },
+    {
+      "id": "local-submission-1776525050206-a112",
+      "project_id": "local-1776443086707-c2af1e",
+      "task_id": "local-task-1776443920909-3df3",
+      "student_id": "b440d3e5-00e8-4bef-bd19-44a65371c57d",
+      "student_email": "s70607162@gmail.com",
+      "task": "Build login API integration",
+      "title": "Build login API integration",
+      "type": "Pull Request",
+      "pr_link": "https://github.com",
+      "summary": "gui",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T15:10:50.206Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T15:11:01.609Z"
+    },
+    {
+      "id": "local-submission-1776522743170-9683",
+      "project_id": "local-1776443086707-c2af1e",
+      "task_id": "local-task-1776443920909-3df3",
+      "student_id": "b440d3e5-00e8-4bef-bd19-44a65371c57d",
+      "student_email": "s70607162@gmail.com",
+      "task": "Build login API integration",
+      "title": "Build login API integration",
+      "type": "Pull Request",
+      "pr_link": "ii",
+      "summary": "ji",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T14:32:23.170Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T15:06:42.296Z"
+    },
+    {
+      "id": "local-submission-1776521238620-a90b",
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": null,
+      "student_email": "s70607162@gmail.com",
+      "task": "TOTALLY-NOT-ASSIGNED-TASK",
+      "title": "TOTALLY-NOT-ASSIGNED-TASK",
+      "type": "Pull Request",
+      "pr_link": "https://github.com/test/pr-unassigned-random",
+      "summary": "Random task test",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T14:07:18.620Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T14:24:33.835Z"
+    },
+    {
+      "id": "local-submission-1776521173819-fc87",
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": null,
+      "student_email": "s70607162@gmail.com",
+      "task": "Set up API endpoints",
+      "title": "Set up API endpoints",
+      "type": "Pull Request",
+      "pr_link": "https://github.com/test/pr-unassigned",
+      "summary": "Unassigned task test",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T14:06:13.820Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T14:24:35.170Z"
+    },
+    {
+      "id": "local-submission-1776521173816-a9cd",
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": null,
+      "student_email": "s70607162@gmail.com",
+      "task": "Build login API integration",
+      "title": "Build login API integration",
+      "type": "Pull Request",
+      "pr_link": "https://github.com/test/pr-assigned",
+      "summary": "Assigned task test",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T14:06:13.817Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T14:11:57.878Z"
+    },
+    {
+      "id": "local-submission-1776521159511-78c6",
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": null,
+      "student_email": "s70607162@gmail.com",
+      "task": "Set up API endpoints",
+      "title": "Set up API endpoints",
+      "type": "Pull Request",
+      "pr_link": "https://github.com/test/pr-unassigned",
+      "summary": "Unassigned task test",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T14:05:59.511Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T14:24:36.189Z"
+    },
+    {
+      "id": "local-submission-1776521159403-8c21",
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": null,
+      "student_email": "s70607162@gmail.com",
+      "task": "Build login API integration",
+      "title": "Build login API integration",
+      "type": "Pull Request",
+      "pr_link": "https://github.com/test/pr-assigned",
+      "summary": "Assigned task test",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T14:05:59.403Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T14:11:59.792Z"
+    },
+    {
+      "id": "local-submission-1776520159160-2cd7",
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": "b440d3e5-00e8-4bef-bd19-44a65371c57d",
+      "student_email": "s70607162@gmail.com",
+      "task": "Set up API endpoints",
+      "title": "Set up API endpoints",
+      "type": "Pull Request",
+      "pr_link": "https://github.com",
+      "summary": "oo",
+      "status": "Rejected",
+      "grade": "—",
+      "submitted_at": "2026-04-18T13:49:19.160Z",
+      "review_status": "rejected",
+      "coordinator_comment": "jujlkl",
+      "reviewed_at": "2026-04-18T13:51:28.010Z"
+    },
+    {
+      "id": "local-submission-1776518592086-3d2c",
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": "b440d3e5-00e8-4bef-bd19-44a65371c57d",
+      "student_email": "s70607162@gmail.com",
+      "task": "Write unit tests",
+      "title": "Write unit tests",
+      "type": "Pull Request",
+      "pr_link": "https://github.com",
+      "summary": "ruy",
+      "status": "Approved",
+      "grade": "—",
+      "submitted_at": "2026-04-18T13:23:12.086Z",
+      "review_status": "approved",
+      "coordinator_comment": null,
+      "reviewed_at": "2026-04-18T13:39:36.124Z"
+    },
+    {
+      "id": "local-submission-1776444265816-4781",
+      "project_id": "local-1776443086707-c2af1e",
+      "student_id": null,
+      "student_email": "s70607162@gmail.com",
+      "task": "Build login API integration",
+      "title": "Build login API integration",
+      "type": "Pull Request",
+      "pr_link": "https://github.com/example/pr/1",
+      "summary": "Implemented API integration for login",
+      "status": "Rejected",
+      "grade": "—",
+      "submitted_at": "2026-04-17T16:44:25.816Z",
+      "review_status": "rejected",
+      "coordinator_comment": "add extra column",
+      "reviewed_at": "2026-04-18T13:43:51.981Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "local-message-1776592417263-5462",
+      "student_id": "5a38a9b2-7cfb-43c8-992c-a3262b1433c4",
+      "student_email": "s70607162@gmail.com",
+      "from": "You",
+      "to": "Coordinator",
+      "message_type": "General Query",
+      "subject": "OOSE",
+      "message": "kkk",
+      "created_at": "2026-04-19T09:53:37.263Z",
+      "time_label": "Just now",
+      "read": false
+    },
+    {
+      "id": "local-message-1776591834964-79ca",
+      "student_id": "4c308c94-4c3c-4f59-822c-a3797a7b5521",
+      "student_email": "akshayjanu1408@gmail.com",
+      "from": "You",
+      "to": "Coordinator",
+      "message_type": "Request Extension",
+      "subject": "OOPS",
+      "message": "ok",
+      "created_at": "2026-04-19T09:43:54.964Z",
+      "time_label": "Just now",
+      "read": false
+    },
+    {
+      "id": "local-message-1776444263098-6cfb",
+      "student_id": null,
+      "student_email": "s70607162@gmail.com",
+      "from": "You",
+      "to": "Subhiksha",
+      "message_type": "General Query",
+      "subject": "Need clarification",
+      "message": "Please share module expectations",
+      "created_at": "2026-04-17T16:44:23.098Z",
+      "time_label": "Just now",
+      "read": false
+    }
+  ],
+  "meetings": [],
+  "activities": [
+    {
+      "id": "activity-1776589927628-bffa",
+      "student": "Coordinator",
+      "action": "created project",
+      "task": "mf",
+      "time": 1776589927628,
+      "isNew": true
+    },
+    {
+      "id": "activity-1776589630021-649c",
+      "student": "Coordinator",
+      "action": "created project",
+      "task": "kk",
+      "time": 1776589630021,
+      "isNew": true
+    },
+    {
+      "id": "activity-1776589534810-4c48",
+      "student": "Coordinator",
+      "action": "created project",
+      "task": "DENTAL PROJECT",
+      "time": 1776589534810,
+      "isNew": true
+    },
+    {
+      "id": "activity-1776587795384-f004",
+      "student": "Coordinator",
+      "action": "created project",
+      "task": "ks",
+      "time": 1776587795384,
+      "isNew": true
+    },
+    {
+      "id": "activity-1776587450402-d204",
+      "student": "Coordinator",
+      "action": "created project",
+      "task": "WEB DESGIN",
+      "time": 1776587450402,
+      "isNew": true
+    },
+    {
+      "id": "activity-1776586678505-851a",
+      "student": "Coordinator",
+      "action": "created project",
+      "task": "WEB PROJECT",
+      "time": 1776586678505,
+      "isNew": true
+    },
+    {
+      "id": "activity-1776443086707-b223",
+      "student": "Coordinator",
+      "action": "created project",
+      "task": "campus",
+      "time": 1776443086707,
+      "isNew": true
+    }
+  ],
+  "usersById": {
+    "local-student-s70607162-gmail-com": {
+      "id": "local-student-s70607162-gmail-com",
+      "name": "Subhiksha",
+      "email": "s70607162@gmail.com",
+      "role": "student",
+      "roll_no": null
+    },
+    "local-student-akshayjanu1408-gmail-com": {
+      "id": "local-student-akshayjanu1408-gmail-com",
+      "name": "AKSHAY",
+      "email": "akshayjanu1408@gmail.com",
+      "role": "student",
+      "roll_no": null
+    },
+    "local-student-stardeepan22-gmail-com": {
+      "id": "local-student-stardeepan22-gmail-com",
+      "name": "DEEPAN",
+      "email": "stardeepan22@gmail.com",
+      "role": "student",
+      "roll_no": null
+    },
+    "local-student-dineshbalu1806-gmail-com": {
+      "id": "local-student-dineshbalu1806-gmail-com",
+      "name": "DINESH",
+      "email": "dineshbalu1806@gmail.com",
+      "role": "student",
+      "roll_no": null
+    },
+    "local-student-ss-gmail-com": {
+      "id": "local-student-ss-gmail-com",
+      "name": "s",
+      "email": "ss@gmail.com",
+      "role": "student",
+      "roll_no": null
+    },
+    "local-student-subhiksha278-gmail-com": {
+      "id": "local-student-subhiksha278-gmail-com",
+      "name": "subhiksha",
+      "email": "subhiksha278@gmail.com",
+      "role": "student",
+      "roll_no": null
+    },
+    "local-student-subhiksha254-gmail-com": {
+      "id": "local-student-subhiksha254-gmail-com",
+      "name": "subhiksha254@gmail.com",
+      "email": "subhiksha254@gmail.com",
+      "role": "student",
+      "roll_no": null
+    }
+  }
+}

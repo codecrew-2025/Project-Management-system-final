@@ -1,0 +1,49 @@
+/* signup.css — extra styles for the signup page */
+
+.signup-card {
+  max-width: 520px;
+  padding: 48px 40px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Professional Select Styling */
+select.field-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-family: var(--font);
+  color: var(--head);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239aaacf' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+
+select.field-input:focus {
+  background: var(--white);
+  border-color: var(--royal);
+  box-shadow: 0 0 0 4px rgba(26,63,170,0.1);
+}
+
+select.field-input.err {
+  border-color: var(--err);
+  background: #fffafa;
+}
+
+@media (max-width: 560px) {
+  .form-row { grid-template-columns: 1fr; }
+  .signup-card { padding: 36px 24px; }
+}

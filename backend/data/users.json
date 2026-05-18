@@ -1,0 +1,245 @@
+[
+  {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "name": "Dr. Rajesh Mehta",
+    "email": "director@pf.com",
+    "password": "Admin@123",
+    "role": "director",
+    "department": "Administration",
+    "phone": "9000000001"
+  },
+  {
+    "id": "22222222-2222-2222-2222-222222222222",
+    "name": "Dr. Priya Sharma",
+    "email": "coord@pf.com",
+    "password": "Coord@123",
+    "role": "coordinator",
+    "department": "Computer Science",
+    "phone": "9000000002"
+  },
+  {
+    "id": "33333333-3333-3333-3333-333333333333",
+    "name": "Aanya Singh",
+    "email": "student@pf.com",
+    "password": "Student@123",
+    "role": "student",
+    "department": "Computer Science",
+    "phone": "9000000003"
+  },
+  {
+    "id": "5300819c-c0ae-4107-9550-3ffb0a8f83ec",
+    "name": "ak",
+    "email": "ak12@gmail.com",
+    "password": "121212",
+    "role": "director",
+    "department": "testing",
+    "phone": "1234567890"
+  },
+  {
+    "id": "65d4c3dc-1f18-429f-8368-357d18831cc2",
+    "name": "ak1",
+    "email": "ak123@gmail.com",
+    "password": "123123",
+    "role": "coordinator",
+    "department": "testing",
+    "phone": "1234567890"
+  },
+  {
+    "id": "0c048490-0c92-4ac6-b12a-84f2cf117843",
+    "name": "akash",
+    "email": "akash123@gmail.com",
+    "password": "123456",
+    "role": "student",
+    "department": "testing",
+    "phone": "1234567890"
+  },
+  {
+    "id": "3d1d6966-b51f-4cfe-a561-00cf154aa256",
+    "name": "Admin Test",
+    "email": "admin@test.com",
+    "password": "password123",
+    "role": "student",
+    "department": "Management",
+    "phone": "1234567890"
+  },
+  {
+    "id": "5ac972c7-3d72-481b-aaca-8ceaf788e39a",
+    "name": "Director Test",
+    "email": "director@test.com",
+    "password": "password123",
+    "role": "student",
+    "department": "Management",
+    "phone": "1234567890"
+  },
+  {
+    "id": "71a11048-2cb7-4b89-b9e2-880e81810ff5",
+    "name": "Dr. Sarah Mitchell",
+    "email": "sarah@test.com",
+    "password": "password123",
+    "role": "director",
+    "department": "Academic Management",
+    "phone": "1234567890"
+  },
+  {
+    "id": "d291c4b3-f195-4836-9cdb-7537682b7414",
+    "name": "akash",
+    "email": "akash1234@gmail.com",
+    "password": "121212",
+    "role": "director",
+    "department": "testing",
+    "phone": "1234567890"
+  },
+  {
+    "id": "20a2b983-8bbe-4a65-af51-34d062c074d1",
+    "name": "Director Test",
+    "email": "testdirector@example.com",
+    "password": "password123",
+    "role": "director",
+    "department": "Management",
+    "phone": "1234567890"
+  },
+  {
+    "id": "58c8a114-8b79-4aeb-94f8-c5ea1150396a",
+    "name": "Coordinator Test",
+    "email": "testcoordinator@example.com",
+    "password": "password123",
+    "role": "coordinator",
+    "department": "Engineering",
+    "phone": "1234567890"
+  },
+  {
+    "id": "7af55a52-dd0f-4bd5-a84b-c712899ea200",
+    "name": "Student Test",
+    "email": "teststudent@example.com",
+    "password": "password123",
+    "role": "student",
+    "department": "Software Engineering",
+    "phone": "1234567890"
+  },
+  {
+    "id": "f76f0493-9cf1-45e3-9b96-e9a46a99e1a4",
+    "name": "Director",
+    "email": "director@gmail.com",
+    "password": "123456",
+    "role": "director",
+    "department": "IT",
+    "phone": "1234567890"
+  },
+  {
+    "id": "e5d291bc-16d0-45e0-b861-6c92d227a3d4",
+    "name": "admin",
+    "email": "admin@gmail.com",
+    "password": "123123",
+    "role": "coordinator",
+    "department": "IT",
+    "phone": "1234567890"
+  },
+  {
+    "id": "f0cfc102-c9a4-4340-acd8-0874d55211c8",
+    "name": "student",
+    "email": "student@gmail.com",
+    "password": "121212",
+    "role": "student",
+    "department": "IT",
+    "phone": "1234567890"
+  },
+  {
+    "id": "c6639d52-da64-49f3-a71c-c2d17520c029",
+    "name": "director",
+    "email": "director1@gmail.com",
+    "password": "123456",
+    "role": "director",
+    "department": "IT",
+    "phone": "1234567890"
+  },
+  {
+    "id": "a26b65c0-8262-4d54-a301-808d50728992",
+    "name": "admin",
+    "email": "admin1@gmail.com",
+    "password": "123123",
+    "role": "coordinator",
+    "department": "IT",
+    "phone": "1234567890"
+  },
+  {
+    "id": "1544c2e5-7d43-458d-abc9-4ef06fdd0f40",
+    "name": "Sachin Krishna",
+    "email": "krsachinkrishna13@gmail.com",
+    "password": "123456",
+    "role": "coordinator",
+    "department": "CSE",
+    "phone": "9342306030"
+  },
+  {
+    "id": "a17cbe5c-be4e-48f0-a278-159ba3311e43",
+    "name": "Vaseegaran",
+    "email": "vaseegaran@gmail.com",
+    "password": "123456",
+    "role": "director",
+    "department": "CSE",
+    "phone": "9750906132"
+  },
+  {
+    "id": "df570217-c9ab-47cf-a16c-c555eff7b7b7",
+    "name": "Dinesh B",
+    "email": "dineshbalu1806@gmail.co",
+    "password": "123456",
+    "role": "coordinator",
+    "department": "IT",
+    "phone": "9840126324"
+  },
+  {
+    "id": "efb27b93-e06f-4533-b7e6-f806d9eadcce",
+    "name": "Dinesh B",
+    "email": "bd040911@gmail.com",
+    "password": "123456",
+    "role": "coordinator",
+    "department": "IT",
+    "phone": "9840126324"
+  },
+  {
+    "id": "e852a0af-f173-406f-8af5-a54b01b93014",
+    "name": "AKSHAY J",
+    "email": "janakiramanakshay@gmail.com",
+    "password": "123456",
+    "role": "coordinator",
+    "department": "Inofrmation Techonology",
+    "phone": "8122134566"
+  },
+  {
+    "id": "b440d3e5-00e8-4bef-bd19-44a65371c57d",
+    "name": "Subhiksha",
+    "email": "s70607162@gmail.com",
+    "password": "123456",
+    "role": "student",
+    "department": "general",
+    "phone": "1234567890"
+  },
+  {
+    "id": "a5b9f1cf-c70d-402e-999e-b5f2d1ef97fd",
+    "name": "Subhiksha",
+    "email": "subhiksha254@gmail.com",
+    "password": "123456",
+    "role": "coordinator",
+    "department": "general",
+    "phone": "0636904107"
+  },
+  {
+    "id": "4c308c94-4c3c-4f59-822c-a3797a7b5521",
+    "name": "AKSHAY J",
+    "email": "akshayjanu1408@gmail.com",
+    "password": "123456",
+    "role": "student",
+    "department": "Inofrmation Techonology",
+    "phone": "8122134566"
+  },
+  {
+    "id": "2dbdcc8a-2590-4611-b106-42b70424f1f4",
+    "name": "deepan",
+    "email": "stardeepan22@gmail.com",
+    "password": "123456",
+    "role": "director",
+    "department": "ir",
+    "phone": "9884932408"
+  }
+]
