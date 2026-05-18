@@ -1592,10 +1592,16 @@ ${alert.days_left !== null ? `Days Left: ${alert.days_left}` : ''}`,
 
 // ─── Start ───────────────────────────────────────────────────
 connectDB().then(() => {
-  app.listen(port, () => {
-    console.log(`ProjectFlow backend running on http://localhost:${port}`)
-  })
+  if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(port, () => {
+      console.log(`ProjectFlow backend running on http://localhost:${port}`)
+    })
+  }
 }).catch(err => {
   console.error('Failed to connect to MongoDB:', err.message)
-  process.exit(1)
+  if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    process.exit(1)
+  }
 })
+
+export default app
