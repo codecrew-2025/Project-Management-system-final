@@ -30,6 +30,7 @@ function normalizeAlert(alert, index) {
     timestamp,
     priority,
     details,
+    project_id: alert?.project_id || null,
   }
 }
 
@@ -58,7 +59,7 @@ const AlertPriorityBadge = ({ priority }) => {
   )
 }
 
-const AlertCard = ({ alert }) => {
+const AlertCard = ({ alert, onViewProjectDetails }) => {
   const [expanded, setExpanded] = useState(false)
   
   const tonerClass = alert.priority?.toLowerCase() || 'medium'
@@ -68,6 +69,7 @@ const AlertCard = ({ alert }) => {
     medium: 1,
   }
   const severity = severityMap[tonerClass] || 0
+  const isCriticalOrHigh = alert.priority === 'Critical' || alert.priority === 'High'
 
   return (
     <article
@@ -106,31 +108,55 @@ const AlertCard = ({ alert }) => {
         </div>
       </div>
 
-      {expanded && alert.details && (
+      {expanded && (
         <div style={{
           marginTop: '10px',
           paddingTop: '10px',
           borderTop: `1px solid ${severity === 3 ? '#fecaca' : severity === 2 ? '#fde68a' : '#bfdbfe'}`,
         }}>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+          <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: isCriticalOrHigh && alert.project_id && onViewProjectDetails ? '12px' : '0' }}>
             {alert.details}
           </div>
+          {isCriticalOrHigh && alert.project_id && onViewProjectDetails && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onViewProjectDetails(alert.project_id)
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                backgroundColor: severity === 3 ? '#dc2626' : '#d97706',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.filter = 'brightness(0.95)'}
+              onMouseLeave={(e) => e.currentTarget.style.filter = 'none'}
+            >
+              🔍 View Project Details
+            </button>
+          )}
         </div>
       )}
     </article>
   )
 }
 
-export default function DirectorAlertsPanel({ alerts = [], loading = false, errorMessage = '' }) {
-  const [filters, setFilters] = useState({ priority: 'All', category: 'All' })
+export default function DirectorAlertsPanel({ alerts = [], loading = false, errorMessage = '', onViewProjectDetails }) {
+  const [filters, setFilters] = useState({ priority: 'All' })
 
   const allAlerts = useMemo(() => (Array.isArray(alerts) ? alerts : []).map(normalizeAlert), [alerts])
 
   const filteredAlerts = allAlerts
     .filter(alert => {
-      const priorityMatch = filters.priority === 'All' || alert.priority === filters.priority
-      const categoryMatch = filters.category === 'All' || alert.category === filters.category
-      return priorityMatch && categoryMatch
+      return filters.priority === 'All' || alert.priority === filters.priority
     })
     .sort((a, b) => {
       const priorityOrder = { Critical: 0, High: 1, Medium: 2 }
@@ -170,20 +196,7 @@ export default function DirectorAlertsPanel({ alerts = [], loading = false, erro
           {['All', 'Critical', 'High', 'Medium'].map(p => <option key={p} value={p}>Priority: {p}</option>)}
         </select>
 
-        <select
-          value={filters.category}
-          onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-          style={{
-            padding: '6px 10px',
-            borderRadius: '6px',
-            border: '1px solid #d1d5db',
-            fontSize: '0.85rem',
-            backgroundColor: '#fff',
-            cursor: 'pointer',
-          }}
-        >
-          {['All', 'Overdue Projects', 'Deadline Risk', 'Low Progress', 'Frequent Delays'].map(c => <option key={c} value={c}>Category: {c}</option>)}
-        </select>
+
       </div>
 
       {loading && <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>⏳ Loading alerts...</div>}
@@ -212,7 +225,7 @@ export default function DirectorAlertsPanel({ alerts = [], loading = false, erro
       {!loading && filteredAlerts.length > 0 && (
         <div>
           {filteredAlerts.map((alert, idx) => (
-            <AlertCard key={alert.id || idx} alert={alert} />
+            <AlertCard key={alert.id || idx} alert={alert} onViewProjectDetails={onViewProjectDetails} />
           ))}
         </div>
       )}

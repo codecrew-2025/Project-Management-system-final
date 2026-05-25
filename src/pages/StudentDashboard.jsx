@@ -324,6 +324,25 @@ function StudentWorkspace({ dashboard, coordinatorLinks, openModal, sidebarMode,
               ))}
             </ul>
           </div>
+          <div className="card">
+            <div className="card-head"><h2 className="card-title">Upcoming Meetings</h2></div>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {(!dashboard.meetings || dashboard.meetings.length === 0) ? (
+                <p style={{ margin: 0, padding: '12px 0', color: 'var(--text-muted)' }}>No meetings scheduled.</p>
+              ) : (
+                dashboard.meetings.map((m, i) => (
+                  <li key={i} style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '12px 0', borderBottom: '1px solid var(--royal-border)' }}>
+                    <strong style={{ fontSize: '0.875rem', color: 'var(--text-head)' }}>{m.title}</strong>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', gap: 12 }}>
+                      <span>📅 {m.date} {m.time}</span>
+                      <span>📍 {m.location || 'Online'}</span>
+                    </div>
+                    {m.note && <span style={{ fontSize: '0.75rem', color: 'var(--text-hint)', marginTop: 4 }}>{m.note}</span>}
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
         </div>
       </div>
     </>

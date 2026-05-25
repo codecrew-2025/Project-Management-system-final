@@ -98,6 +98,7 @@ export async function createProjectFull({ project, students, modules, tasks = []
     deadline: project?.deadline || null,
     description: project?.description || '',
     client: project?.client_notes || '',
+    domain: project?.domain || 'General',
     drive_folder_link: project?.drive_folder_link || null,
     google_form_link: project?.google_form_link || null,
     students: students || [],
@@ -143,6 +144,13 @@ export async function addProjectStudent({ project_id, student_name, student_emai
 export async function createTask(payload) {
   return request('/tasks', {
     method: 'POST',
+    body: JSON.stringify(payload || {}),
+  })
+}
+
+export async function updateTask(taskId, payload) {
+  return request(`/tasks/${taskId}`, {
+    method: 'PUT',
     body: JSON.stringify(payload || {}),
   })
 }
@@ -211,6 +219,7 @@ export async function createMeeting(payload) {
     time: payload.time,
     location: payload.location || null,
     note: payload.note || null,
+    team_members: payload.team_members || [],
   }
 
   return request('/meetings', {

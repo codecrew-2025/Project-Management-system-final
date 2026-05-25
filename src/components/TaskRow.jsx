@@ -1,4 +1,4 @@
-export default function TaskRow({ task, studentName, onOpenDrive }) {
+export default function TaskRow({ task, studentName, onOpenDrive, onEdit }) {
   const badge = statusToBadge(task.status)
 
   return (
@@ -18,6 +18,22 @@ export default function TaskRow({ task, studentName, onOpenDrive }) {
           >
             <span style={{ fontSize: '1rem' }}>📁</span>
             <span style={{ fontSize: '0.8rem' }}>Open</span>
+          </button>
+        ) : (
+          <span style={{ color: 'var(--text-hint)' }}>—</span>
+        )}
+      </td>
+      <td style={{ width: 80 }}>
+        {onEdit ? (
+          <button
+            type="button"
+            className="btn-outline"
+            style={{ padding: '6px 10px', display: 'inline-flex', alignItems: 'center', gap: 6, borderColor: 'var(--royal-border)', color: 'var(--royal)' }}
+            onClick={onEdit}
+            title="Edit task"
+          >
+            <span style={{ fontSize: '0.9rem' }}>✏️</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Edit</span>
           </button>
         ) : (
           <span style={{ color: 'var(--text-hint)' }}>—</span>

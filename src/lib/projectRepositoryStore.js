@@ -74,6 +74,7 @@ export function saveCoordinatorProjectLinks(projectRef, links) {
     main_project_drive_link: String(links?.main_project_drive_link || '').trim(),
     shared_folder_link: String(links?.shared_folder_link || '').trim(),
     reference_materials_link: String(links?.reference_materials_link || '').trim(),
+    media_files_link: String(links?.media_files_link || '').trim(),
     updated_at: new Date().toISOString(),
   }
 

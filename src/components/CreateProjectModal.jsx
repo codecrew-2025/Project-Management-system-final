@@ -18,6 +18,7 @@ export default function CreateProjectModal({ isOpen, coordinator, coordinatorId,
   const [description, setDescription] = useState('')
   const [client, setClient] = useState('')
   const [domain, setDomain] = useState('Web Dev')
+  const [customDomain, setCustomDomain] = useState('')
   const [startDate, setStartDate] = useState('')
   const [deadline, setDeadline] = useState('')
 
@@ -103,7 +104,7 @@ export default function CreateProjectModal({ isOpen, coordinator, coordinatorId,
     setStep(1)
     setSelectedCoordinatorId('')
     setCoordinatorInput('')
-    setTitle(''); setDescription(''); setClient(''); setDomain('Web Dev')
+    setTitle(''); setDescription(''); setClient(''); setDomain('Web Dev'); setCustomDomain('')
     setStartDate(''); setDeadline('')
     setEntryStudents([])
     setManualName(''); setManualEmail(''); setManualRollNo(''); setManualPhone(''); setManualError('')
@@ -119,6 +120,7 @@ export default function CreateProjectModal({ isOpen, coordinator, coordinatorId,
         if (Array.isArray(coordinators) && coordinators.length > 0) {
           const found = coordinators.find((c) => (c.id && c.id === coordinator.id) || (c.email && c.email === coordinator.email))
           setSelectedCoordinatorId(found ? (found.id || found.email) : coordinatorValue)
+          setCoordinatorInput(found ? (found.name || found.email) : (coordinator.name || coordinator.email || ''))
         } else {
           setCoordinatorInput(coordinator.name || coordinator.email || '')
         }
@@ -136,11 +138,14 @@ export default function CreateProjectModal({ isOpen, coordinator, coordinatorId,
   function validateStep(nextStep) {
     setError('')
     if (nextStep === 2) {
+      // Coordinator is always required
+      if (!coordinatorInput.trim() && !selectedCoordinatorId) return setError('Coordinator name is required.'), false
       if (isSimpleMode) return true
       if (!client.trim()) return setError('Client is required.'), false
       if (!title.trim()) return setError('Project title is required.'), false
       if (!description.trim()) return setError('Project description is required.'), false
       if (!domain) return setError('Domain is required.'), false
+      if (domain === 'Other' && !customDomain.trim()) return setError('Please specify the custom domain.'), false
       if (!startDate) return setError('Start date is required.'), false
       if (!deadline) return setError('Deadline is required.'), false
       if (new Date(deadline) <= new Date(startDate)) return setError('Deadline must be after start date.'), false
@@ -398,7 +403,7 @@ export default function CreateProjectModal({ isOpen, coordinator, coordinatorId,
           title: title.trim(),
           description: description.trim(),
           client_notes: client.trim(),
-          domain,
+          domain: domain === 'Other' && customDomain.trim() ? customDomain.trim() : domain,
           start_date: startDate,
           deadline,
         },
@@ -435,22 +440,45 @@ export default function CreateProjectModal({ isOpen, coordinator, coordinatorId,
           <Field label="Title" required>
             <input value={title} onChange={(e) => setTitle(e.target.value)} style={inputStyle} placeholder="e.g. Smart Campus App" />
           </Field>
-              <Field label="Coordinator">
-                {Array.isArray(coordinators) && coordinators.length > 0 ? (
-                  <select value={selectedCoordinatorId} onChange={(e) => setSelectedCoordinatorId(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
-                    <option value="">Choose coordinator (or leave blank)</option>
+              <Field label="Coordinator" required>
+                <input
+                  list="coordinator-list"
+                  value={coordinatorInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCoordinatorInput(val);
+                    if (Array.isArray(coordinators) && coordinators.length > 0) {
+                      const sel = coordinators.find((c) => c.name === val || c.email === val);
+                      setSelectedCoordinatorId(sel ? (sel.id || sel.email) : '');
+                    }
+                  }}
+                  style={inputStyle}
+                  placeholder="Type or choose coordinator"
+                  autoComplete="off"
+                />
+                {Array.isArray(coordinators) && coordinators.length > 0 && (
+                  <datalist id="coordinator-list">
                     {coordinators.map((c) => (
-                      <option key={c.id || c.email} value={c.id || c.email}>{c.name || c.email}</option>
+                      <option key={c.id || c.email} value={c.name || c.email}>
+                        {c.email !== c.name ? c.email : ''}
+                      </option>
                     ))}
-                  </select>
-                ) : (
-                  <input value={coordinatorInput} onChange={(e) => setCoordinatorInput(e.target.value)} style={inputStyle} placeholder="Coordinator name or email" />
+                  </datalist>
                 )}
               </Field>
           <Field label="Domain" required>
-            <select value={domain} onChange={(e) => setDomain(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+            <select value={domain} onChange={(e) => { setDomain(e.target.value); if (e.target.value !== 'Other') setCustomDomain('') }} style={{ ...inputStyle, cursor: 'pointer' }}>
               {DOMAIN_OPTIONS.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
+            {domain === 'Other' && (
+              <input
+                value={customDomain}
+                onChange={(e) => setCustomDomain(e.target.value)}
+                style={{ ...inputStyle, marginTop: 8 }}
+                placeholder="Enter custom domain"
+                autoFocus
+              />
+            )}
           </Field>
           <Field label="Start Date">
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle} />

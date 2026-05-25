@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import ActionModal from '../components/ActionModal'
 import CoordinatorModal from '../components/CoordinatorModal'
 import CreateProjectModal from '../components/CreateProjectModal'
+import ProjectDetailsModal from '../components/ProjectDetailsModal'
 import DirectorAlertsPanel from '../components/DirectorAlertsPanel'
 import { changePassword, createManagedUser } from '../lib/api'
 import { fetchProjectReport } from '../lib/api'
@@ -46,6 +47,19 @@ const navItems = [
 
 function getDomain(project) {
   return project.domain || 'General'
+}
+
+const DEFAULT_DOMAINS = [
+  'Web Dev', 'ML', 'IoT', 'Mobile', 'Research', 'General',
+  'Artificial Intelligence', 'Data Science', 'Robotics', 
+  'UI/UX Design', 'Cyber Security', 'Cloud Computing', 
+  'DevOps', 'Blockchain'
+];
+
+function getSortedDomainOptions(projects) {
+  const rawDomains = Array.from(new Set([...DEFAULT_DOMAINS, ...projects.map(project => getDomain(project))]));
+  const withoutOther = rawDomains.filter(d => d && d.toLowerCase() !== 'other');
+  return [...withoutOther, 'Other'];
 }
 
 function clamp(value, min, max) {
@@ -355,6 +369,7 @@ export default function DirectorDashboard() {
   const [selectedCoordinator, setSelectedCoordinator] = useState(null)
   const [sidebarMode, setSidebarMode] = useState('expanded')
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false)
+  const [selectedProjectDetailsId, setSelectedProjectDetailsId] = useState(null)
 
   const user = (() => {
     try { return JSON.parse(sessionStorage.getItem('pf_user') || localStorage.getItem('pf_user') || 'null') } catch { return null }
@@ -456,9 +471,9 @@ export default function DirectorDashboard() {
         onToggleMode={() => setSidebarMode(prev => prev === 'mini' ? 'expanded' : 'mini')}
       />
       <main className="main-content">
-        {activeNav === 0 && <OverviewPanel dashboard={dashboard} openModal={openModal} openCreateProject={openCreateProject} sidebarMode={sidebarMode} setSidebarMode={setSidebarMode} />}
-        {activeNav === 1 && <AllProjectsPanel dashboard={dashboard} openCreateProject={openCreateProject} sidebarMode={sidebarMode} setSidebarMode={setSidebarMode} />}
-        {activeNav === 2 && <DirectorAlertsPanel alerts={graph?.alerts?.history || []} />}
+        {activeNav === 0 && <OverviewPanel dashboard={dashboard} openModal={openModal} openCreateProject={openCreateProject} sidebarMode={sidebarMode} setSidebarMode={setSidebarMode} onViewProjectDetails={setSelectedProjectDetailsId} />}
+        {activeNav === 1 && <AllProjectsPanel dashboard={dashboard} openCreateProject={openCreateProject} sidebarMode={sidebarMode} setSidebarMode={setSidebarMode} onViewProjectDetails={setSelectedProjectDetailsId} />}
+        {activeNav === 2 && <DirectorAlertsPanel alerts={graph?.alerts?.history || []} onViewProjectDetails={setSelectedProjectDetailsId} />}
         {activeNav === 3 && <TeamsPanel graph={graph} sidebarMode={sidebarMode} setSidebarMode={setSidebarMode} openCoordinator={openCoordinator} />}
         {activeNav === 4 && <AnalyticsPanel dashboard={dashboard} sidebarMode={sidebarMode} setSidebarMode={setSidebarMode} />}
         {activeNav === 5 && <ReportsPanel openModal={openModal} dashboard={dashboard} sidebarMode={sidebarMode} setSidebarMode={setSidebarMode} />}
@@ -486,6 +501,11 @@ export default function DirectorDashboard() {
             }}
           />
         )}
+        <ProjectDetailsModal
+          isOpen={!!selectedProjectDetailsId}
+          projectId={selectedProjectDetailsId}
+          onClose={() => setSelectedProjectDetailsId(null)}
+        />
         {activeNav === 7 && <StudentsPanel graph={graph} />}
         {activeNav === 8 && <AssignCoordinatorsPanel refetch={refetch} />}
         {activeNav === 9 && <SettingsPanel dashboard={dashboard} refetch={refetch} />}
@@ -495,11 +515,11 @@ export default function DirectorDashboard() {
 }
 
 /* ─── Overview Panel ──────────────────────────────────── */
-function OverviewPanel({ dashboard, openModal, openCreateProject, sidebarMode, setSidebarMode }) {
+function OverviewPanel({ dashboard, openModal, openCreateProject, sidebarMode, setSidebarMode, onViewProjectDetails }) {
   const [filterType, setFilterType] = useState('')
   const [filterValue, setFilterValue] = useState('')
 
-  const domainOptions = Array.from(new Set(dashboard.projects.map(project => getDomain(project))))
+  const domainOptions = getSortedDomainOptions(dashboard.projects)
   const coordinatorOptions = Array.from(new Set(dashboard.projects.map(project => project.coord)))
   const statusOptions = Array.from(new Set(dashboard.projects.map(project => project.status)))
 
@@ -606,18 +626,17 @@ function OverviewPanel({ dashboard, openModal, openCreateProject, sidebarMode, s
           <table className="data-table">
             <thead><tr><th>Project Name</th><th>Domain</th><th>Coordinator</th><th>Progress</th><th>Deadline</th><th>Status</th></tr></thead>
             <tbody>
-              {highlightProjects.filter((project) => {
-                if (!filterType || !filterValue) return true
-                if (filterType === 'Domain') return getDomain(project) === filterValue
-                if (filterType === 'Coordinator') return project.coord === filterValue
-                if (filterType === 'Status') return project.status === filterValue
-                return true
-              }).map((p, i) => (
+              {(filterType && filterValue ? filteredProjects : highlightProjects).map((p, i) => (
                 <tr key={i}>
-                  <td style={{ color: 'var(--royal)', fontWeight: 600 }}>{p.name}</td>
+                  <td style={{ color: 'var(--royal)', fontWeight: 600, cursor: 'pointer' }} onClick={() => onViewProjectDetails(p.id)}>{p.name}</td>
                   <td>{getDomain(p)}</td>
                   <td>{p.coord}</td>
-                  <td><div className="progress-bar"><div className="progress-fill" style={{ width: `${p.pct}%`, background: p.color }}></div></div></td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div className="progress-bar" style={{ flex: 1 }}><div className="progress-fill" style={{ width: `${p.pct}%`, background: p.color }}></div></div>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 500, minWidth: '32px', textAlign: 'right' }}>{p.pct}%</span>
+                    </div>
+                  </td>
                   <td>{p.dl}</td>
                   <td><span className={`badge ${p.badge}`}>{p.status.toUpperCase()}</span></td>
                 </tr>
@@ -644,11 +663,11 @@ function OverviewPanel({ dashboard, openModal, openCreateProject, sidebarMode, s
 }
 
 /* ─── All Projects Panel ───────────────────────────────── */
-function AllProjectsPanel({ dashboard, openCreateProject }) {
+function AllProjectsPanel({ dashboard, openCreateProject, onViewProjectDetails }) {
   const [filterType, setFilterType] = useState('')
   const [filterValue, setFilterValue] = useState('')
 
-  const domainOptions = Array.from(new Set(dashboard.projects.map(project => getDomain(project))))
+  const domainOptions = getSortedDomainOptions(dashboard.projects)
   const coordinatorOptions = Array.from(new Set(dashboard.projects.map(project => project.coord)))
   const statusOptions = Array.from(new Set(dashboard.projects.map(project => project.status)))
 
@@ -717,7 +736,7 @@ function AllProjectsPanel({ dashboard, openCreateProject }) {
             {filteredProjects.map((p, i) => (
               <tr key={i}>
                 <td style={{ color: 'var(--text-hint)' }}>{String(i+1).padStart(2,'0')}</td>
-                <td style={{ color: 'var(--royal)', fontWeight: 600 }}>{p.name}</td>
+                <td style={{ color: 'var(--royal)', fontWeight: 600, cursor: 'pointer' }} onClick={() => onViewProjectDetails && onViewProjectDetails(p.id)}>{p.name}</td>
                 <td>{getDomain(p)}</td>
                 <td>{p.coord}</td>
                 <td style={{ minWidth: 120 }}>
@@ -744,7 +763,7 @@ function AnalyticsPanel({ dashboard }) {
 
   const projects = dashboard.projects || []
   const coordinatorOptions = Array.from(new Set(projects.map(project => project.coord)))
-  const domainOptions = Array.from(new Set(projects.map(project => getDomain(project))))
+  const domainOptions = getSortedDomainOptions(projects)
   const projectOptions = projects.map(project => project.name)
 
   const filterOptionsByType = {
@@ -1282,25 +1301,26 @@ function AssignCoordinatorsPanel({ refetch }) {
     }
   })()
 
-  const [form, setForm] = useState({ name: '', email: '', domain: 'Web Development' })
+  const [form, setForm] = useState({ name: '', email: '', domain: 'Web Dev', staffId: '', customDomain: '' })
   const [saving, setSaving] = useState(false)
   const [statusMsg, setStatusMsg] = useState('')
   const [toast, setToast] = useState(null)
 
   const emailValid = /.+@.+\..+/.test(String(form.email || '').trim())
   const domainOptions = [
-    'Web Development',
-    'Machine Learning',
+    'Web Dev',
+    'ML',
     'Artificial Intelligence',
     'Data Science',
     'Robotics',
-    'App Development',
+    'Mobile',
     'UI/UX Design',
     'Cyber Security',
     'Cloud Computing',
     'IoT',
     'DevOps',
     'Blockchain',
+    'Others',
   ]
 
   useEffect(() => {
@@ -1313,10 +1333,11 @@ function AssignCoordinatorsPanel({ refetch }) {
     event.preventDefault()
     const name = String(form.name || '').trim()
     const email = String(form.email || '').trim().toLowerCase()
-    const domain = String(form.domain || '').trim()
+    const domain = String(form.domain === 'Others' ? form.customDomain : form.domain || '').trim()
+    const staffId = String(form.staffId || '').trim()
 
-    if (!name || !email || !domain) {
-      setStatusMsg('Name, email, and domain are required.')
+    if (!name || !email || !domain || !staffId) {
+      setStatusMsg('Name, email, domain, and Staff ID are required.')
       return
     }
 
@@ -1335,8 +1356,9 @@ function AssignCoordinatorsPanel({ refetch }) {
         name,
         email,
         department: domain,
+        staff_id: staffId,
       })
-      setForm({ name: '', email: '', domain: 'Web Development' })
+      setForm({ name: '', email: '', domain: 'Web Development', staffId: '', customDomain: '' })
       setStatusMsg('Coordinator assigned successfully')
       setToast({ type: 'success', message: 'Coordinator assigned successfully' })
       await refetch?.()
@@ -1380,6 +1402,17 @@ function AssignCoordinatorsPanel({ refetch }) {
           </div>
 
           <div className="assign-field">
+            <label className="assign-label">Staff ID</label>
+            <input
+              type="text"
+              value={form.staffId}
+              onChange={(e) => setForm((prev) => ({ ...prev, staffId: e.target.value }))}
+              placeholder="e.g. STF123"
+              className="assign-input"
+            />
+          </div>
+
+          <div className="assign-field">
             <label className="assign-label">Email ID</label>
             <input
               type="email"
@@ -1401,6 +1434,16 @@ function AssignCoordinatorsPanel({ refetch }) {
                 <option key={option} value={option}>{option}</option>
               ))}
             </select>
+            {form.domain === 'Others' && (
+              <input
+                type="text"
+                value={form.customDomain}
+                onChange={(e) => setForm((prev) => ({ ...prev, customDomain: e.target.value }))}
+                placeholder="Enter custom domain"
+                className="assign-input"
+                style={{ marginTop: '10px' }}
+              />
+            )}
           </div>
 
           <div className="assign-hint">
@@ -1457,7 +1500,7 @@ function CoordinatorsPanel({ graph, openCoordinator }) {
                     <td style={{ fontWeight: 700, color: 'var(--text-head)' }}>{c.name || '—'}</td>
                     <td style={{ color: 'var(--text-muted)' }}>{c.email}</td>
                     <td>{c.department || '—'}</td>
-                    <td>{coordProjects.map(p => <span key={p.id} className="badge badge-amber" style={{marginRight:4}}>{p.title}</span>)}</td>
+                    <td>{coordProjects.length}</td>
                     <td style={{ fontWeight: 600 }}>{totalStudents}</td>
                   </tr>
                 )

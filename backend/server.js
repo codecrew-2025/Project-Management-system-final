@@ -235,7 +235,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 app.post('/api/users', async (req, res) => {
   try {
-    const { creatorEmail, creatorRole, role, name, email, department, phone, roll_no } = req.body || {}
+    const { creatorEmail, creatorRole, role, name, email, department, phone, roll_no, staff_id } = req.body || {}
     const user = await createManagedUser({
       creatorEmail,
       creatorRole,
@@ -245,6 +245,7 @@ app.post('/api/users', async (req, res) => {
       department,
       phone,
       roll_no,
+      staff_id,
     })
     return res.status(201).json({ user, message: 'Account created successfully.', defaultPassword: '123456' })
   } catch (error) {
@@ -470,7 +471,7 @@ app.get('/api/coordinator-graph', async (req, res) => {
 app.post('/api/projects', async (req, res) => {
   try {
     const db = await getDB()
-    const { title, coordinator, coordinator_id, coordinator_email, deadline, description, client, students, drive_folder_link, google_form_link } = req.body || {}
+    const { title, coordinator, coordinator_id, coordinator_email, deadline, description, client, students, drive_folder_link, google_form_link, domain } = req.body || {}
     if (!title) return res.status(400).json({ message: 'Project title is required.' })
 
     const coordinatorInput = String(coordinator || '').trim()
@@ -505,6 +506,7 @@ app.post('/api/projects', async (req, res) => {
       title: String(title).trim(),
       description: description ? String(description).trim() : '',
       client_notes: client ? String(client).trim() : '',
+      domain: String(domain || 'General').trim(),
       coordinator_name: resolvedCoordinatorName,
       coordinator_id: resolvedCoordinatorId,
       coordinator_email: resolvedCoordinatorEmail,
@@ -971,6 +973,7 @@ app.post('/api/tasks', async (req, res) => {
     const task = {
       id: `task-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
       module_id: module_id || null,
+      module_name: req.body?.module_name ? String(req.body.module_name).trim() : null,
       project_id: inferredProjectId,
       title: String(title).trim(),
       description: description || null,
@@ -981,9 +984,42 @@ app.post('/api/tasks', async (req, res) => {
       priority: priority || 'Medium',
       created_at: new Date().toISOString(),
     }
-
     await db.collection('tasks').insertOne(task)
     res.status(201).json({ message: 'Task created successfully', ...task })
+  } catch (e) {
+    res.status(500).json({ message: e.message })
+  }
+})
+
+app.put('/api/tasks/:taskId', async (req, res) => {
+  try {
+    const db = await getDB()
+    const { taskId } = req.params
+    const { title, description, assigned_student_id, assigned_student_email, deadline } = req.body || {}
+    
+    if (!title) return res.status(400).json({ message: 'Task title is required.' })
+    
+    const email = normalizeEmail(assigned_student_email || '')
+    const updatePayload = {
+      title: String(title).trim(),
+      description: description || null,
+      assigned_student_id: assigned_student_id || (email ? studentIdFromEmail(email) : null),
+      assigned_student_email: email || null,
+      deadline: deadline || null,
+    }
+    
+    if (req.body?.module_name !== undefined) {
+      updatePayload.module_name = req.body.module_name ? String(req.body.module_name).trim() : null;
+    }
+
+    const result = await db.collection('tasks').updateOne(
+      { id: taskId },
+      { $set: updatePayload }
+    )
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'Task not found.' })
+    }
+    res.json({ message: 'Task updated successfully' })
   } catch (e) {
     res.status(500).json({ message: e.message })
   }
@@ -1136,7 +1172,7 @@ app.get('/api/meetings', async (req, res) => {
 app.post('/api/meetings', async (req, res) => {
   try {
     const db = await getDB()
-    const { coordinator_id, coordinator_email, project_id, title, date, time, location, note } = req.body || {}
+    const { coordinator_id, coordinator_email, project_id, title, date, time, location, note, team_members } = req.body || {}
     if (!title || !date || !time) return res.status(400).json({ message: 'Title, date, and time are required.' })
 
     const meeting = {
@@ -1149,6 +1185,7 @@ app.post('/api/meetings', async (req, res) => {
       time: String(time),
       location: location || null,
       note: note || null,
+      team_members: Array.isArray(team_members) ? team_members : [],
       created_at: new Date().toISOString(),
     }
 
@@ -1217,6 +1254,16 @@ app.get('/api/dashboard/:role', async (req, res) => {
       const messages = await db.collection('messages').find({
         $or: [{ student_id: student.id }, { student_email: student.email }]
       }).sort({ created_at: -1 }).toArray()
+
+      // Fetch meetings for the student (assigned specifically to them, or to their project without specific assignments)
+      const meetingsFilter = {
+        $or: [
+          { team_members: student.email },
+          { project_id: { $in: projectIds }, team_members: { $size: 0 } },
+          { project_id: { $in: projectIds }, team_members: { $exists: false } }
+        ]
+      }
+      const meetings = await db.collection('meetings').find(meetingsFilter).sort({ date: 1 }).toArray()
 
       // Use the requested project if specified, otherwise most recent
       const project = (requestedProjectId
@@ -1307,6 +1354,13 @@ app.get('/api/dashboard/:role', async (req, res) => {
           time: formatDateLabel(m.created_at) || 'Just now',
           read: Boolean(m.read),
         })),
+        meetings: meetings.map(m => ({
+          title: m.title,
+          date: m.date,
+          time: m.time,
+          location: m.location,
+          note: m.note,
+        })),
       })
     } catch (e) {
       console.error('student dashboard error:', e)
@@ -1317,13 +1371,16 @@ app.get('/api/dashboard/:role', async (req, res) => {
   const dashboard = dashboardData[role]
   if (!dashboard) return res.status(404).json({ message: 'Dashboard not found.' })
 
-  // For director, enrich with real MongoDB data
   if (role === 'director') {
     try {
       const db = await getDB()
-      const projects = await db.collection('projects').find({}).sort({ created_at: -1 }).toArray()
-      const studentCount = await db.collection('users').countDocuments({ role: 'student' })
-      const coordinatorCount = await db.collection('users').countDocuments({ role: 'coordinator' })
+      const [projects, allTasks, projectStudents, studentCount, coordinatorCount] = await Promise.all([
+        db.collection('projects').find({}).sort({ created_at: -1 }).toArray(),
+        db.collection('tasks').find({}).toArray(),
+        db.collection('project_students').find({}).toArray(),
+        db.collection('users').countDocuments({ role: 'student' }),
+        db.collection('users').countDocuments({ role: 'coordinator' })
+      ])
 
       const enriched = {
         ...dashboard,
@@ -1333,16 +1390,24 @@ app.get('/api/dashboard/:role', async (req, res) => {
           { icon: '✔', bg: '#dcfce7', color: '#15803d', value: String(projects.filter(p => p.status === 'completed').length), label: 'Completed', trend: 'up', trendTxt: '' },
           { icon: '⚠', bg: '#fee2e2', color: '#b91c1c', value: '0', label: 'At Risk', trend: 'down', trendTxt: '' },
         ],
-        projects: projects.map(p => ({
-          name: p.title,
-          coord: p.coordinator_name || 'Coordinator',
-          n: 0,
-          pct: 0,
-          color: '#1a3faa',
-          dl: p.deadline || 'TBD',
-          badge: p.status === 'completed' ? 'badge-green' : 'badge-amber',
-          status: p.status === 'completed' ? 'Completed' : 'Active',
-        })),
+        projects: projects.map(p => {
+          const pStudents = projectStudents.filter(ps => ps.project_id === p.id)
+          const pTasks = allTasks.filter(t => t.project_id === p.id)
+          const completed = pTasks.filter(t => t.status === 'completed').length
+          const pct = pTasks.length > 0 ? Math.round((completed / pTasks.length) * 100) : 0
+          return {
+            id: p.id,
+            name: p.title,
+            domain: p.domain || 'General',
+            coord: p.coordinator_name || 'Coordinator',
+            n: pStudents.length,
+            pct: pct,
+            color: p.status === 'completed' ? '#15803d' : '#1a3faa',
+            dl: p.deadline || 'TBD',
+            badge: p.status === 'completed' ? 'badge-green' : 'badge-amber',
+            status: p.status === 'completed' ? 'Completed' : 'Active',
+          }
+        }),
         userDistribution: [
           { name: 'Students', value: studentCount, fill: '#0052CC' },
           { name: 'Coordinators', value: coordinatorCount, fill: '#36B37E' },
@@ -1351,6 +1416,7 @@ app.get('/api/dashboard/:role', async (req, res) => {
       return res.json(enriched)
     } catch (e) {
       console.error('director dashboard error:', e)
+      return res.status(500).json({ message: 'Internal server error.' })
     }
   }
 

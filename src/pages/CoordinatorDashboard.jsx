@@ -13,6 +13,7 @@ import {
   reviewSubmission,
   listSubmissionsByCoordinator,
   createTask,
+  updateTask,
   addProjectStudent,
   createMeeting,
   updateProjectStudentDriveFolderLink,
@@ -365,7 +366,7 @@ export default function CoordinatorDashboard() {
           isOpen={scheduleModalOpen}
           onClose={() => setScheduleModalOpen(false)}
           coordinatorId={user?.id}
-          projects={graph?.projects}
+          graph={graph}
           onScheduled={() => {
             addToast('Review scheduled!')
             fetchGraph(user.id, user.email, user.name)
@@ -411,6 +412,7 @@ function CoordProjectDrives({ graph, refetch }) {
           main_project_drive_link: nextDraft.main_project_drive_link,
           shared_folder_link: nextDraft.shared_folder_link,
           reference_materials_link: nextDraft.reference_materials_link,
+          screenshot_link: nextDraft.media_files_link,
         }
       )
 
@@ -485,12 +487,22 @@ function CoordProjectDrives({ graph, refetch }) {
                   />
                 </label>
 
-                <label style={{ display: 'grid', gap: 6, gridColumn: '1 / -1' }}>
+                <label style={{ display: 'grid', gap: 6 }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>Reference Materials Link</span>
                   <input
                     value={projectDraft.reference_materials_link || ''}
                     onChange={(e) => setDrafts((prev) => ({ ...prev, [project.id]: { ...(prev[project.id] || {}), reference_materials_link: e.target.value } }))}
                     placeholder="https://docs.google.com/..."
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }}
+                  />
+                </label>
+
+                <label style={{ display: 'grid', gap: 6 }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>Media & Files Link</span>
+                  <input
+                    value={projectDraft.media_files_link || ''}
+                    onChange={(e) => setDrafts((prev) => ({ ...prev, [project.id]: { ...(prev[project.id] || {}), media_files_link: e.target.value } }))}
+                    placeholder="https://drive.google.com/drive/folders/media..."
                     style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }}
                   />
                 </label>
@@ -919,6 +931,7 @@ function CoordProjects({ graph, refetch, openCreateProject, openReview }) {
 function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
   const [tab, setTab] = useState('Modules') // Modules | Team members | Submissions | Analytics
   const [addTaskModalData, setAddTaskModalData] = useState(null) // module object
+  const [editingTask, setEditingTask] = useState(null)
   const [driveLinkError, setDriveLinkError] = useState('')
   const [newStudentName, setNewStudentName] = useState('')
   const [newStudentEmail, setNewStudentEmail] = useState('')
@@ -1061,23 +1074,58 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
   const localStudentIdFromEmail = (email) => `student-${String(email || '').trim().toLowerCase().replace(/[^a-z0-9]+/gi, '-')}`
 
   // Modules Data
-  const modules = useMemo(() => graph.modules.filter(m => m.project_id === project.id).sort((a,b) => a.order_index - b.order_index), [graph, project])
+  const modules = useMemo(() => {
+    const realModules = graph.modules.filter(m => String(m.project_id || '') === String(project.id)).sort((a,b) => a.order_index - b.order_index)
+    
+    const realModuleIdSet = new Set(realModules.map(m => String(m.id)))
+    const virtualModules = []
+    const virtualModuleNames = new Set()
+
+    graph.tasks.forEach(task => {
+      const byProject = String(task.project_id || '') === String(project.id)
+      const inKnownModule = realModuleIdSet.has(String(task.module_id || ''))
+      const moduleName = String(task.module_name || '').trim()
+
+      if (byProject && !inKnownModule && moduleName) {
+        if (!virtualModuleNames.has(moduleName)) {
+          virtualModuleNames.add(moduleName)
+          virtualModules.push({
+            id: `virtual-${moduleName}`,
+            project_id: project.id,
+            name: moduleName,
+            description: '',
+            order_index: realModules.length + virtualModules.length
+          })
+        }
+      }
+    })
+
+    return [...realModules, ...virtualModules]
+  }, [graph, project])
   
-  // Tasks map per module
   const tasksByModule = useMemo(() => {
     const map = {}
     modules.forEach(m => {
-      map[m.id] = graph.tasks.filter(t => t.module_id === m.id)
+      if (String(m.id).startsWith('virtual-')) {
+        map[m.id] = graph.tasks.filter(t => 
+          String(t.project_id || '') === String(project.id) && 
+          String(t.module_name || '').trim() === m.name && 
+          !t.module_id
+        )
+      } else {
+        map[m.id] = graph.tasks.filter(t => String(t.module_id || '') === String(m.id))
+      }
     })
     return map
-  }, [graph, modules])
+  }, [graph, modules, project.id])
 
   const directProjectTasks = useMemo(() => {
     const moduleIdSet = new Set(modules.map((m) => String(m.id)))
     return graph.tasks.filter((task) => {
       const byProject = String(task.project_id || '') === String(project.id)
       const inKnownModule = moduleIdSet.has(String(task.module_id || ''))
-      return byProject && !inKnownModule
+      const inVirtualModule = !inKnownModule && String(task.module_name || '').trim() !== ''
+      return byProject && !inKnownModule && !inVirtualModule
     })
   }, [graph, modules, project])
 
@@ -1085,7 +1133,7 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
   const projectStudents = useMemo(() => {
     const moduleIdSet = new Set(modules.map((m) => String(m.id)))
 
-    return graph.projectStudents.filter(ps => ps.project_id === project.id).map(ps => {
+    return graph.projectStudents.filter(ps => String(ps.project_id || '') === String(project.id)).map(ps => {
       const stu = graph.usersById[ps.student_id]
       const sTasks = graph.tasks.filter((t) => {
         const byModule = moduleIdSet.has(String(t.module_id || ''))
@@ -1144,7 +1192,7 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
     ].filter(d => d.value > 0)
   }, [graph.tasks, modules, project.id])
 
-  // Create module task function
+  // Create / Update task function
   const handleAddTask = async (e) => {
     e.preventDefault()
     const fd = new FormData(e.target)
@@ -1152,16 +1200,26 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
     const assignedStudent = projectAssignableStudents.find((student) => String(student.student_id) === assignedStudentId)
     const assignedStudentEmail = assignedStudent?.student_email || null
 
-    await createTask({
-      module_id: addTaskModalData.id,
-      project_id: project.id,
+    const taskPayload = {
       title: fd.get('title'),
       description: fd.get('description'),
+      module_name: fd.get('module_name') || null,
       assigned_student_id: assignedStudentId,
       assigned_student_email: assignedStudentEmail,
       deadline: fd.get('deadline'),
-    })
-    setAddTaskModalData(null)
+    }
+
+    if (editingTask) {
+      await updateTask(editingTask.id, taskPayload)
+      setEditingTask(null)
+    } else {
+      await createTask({
+        ...taskPayload,
+        module_id: addTaskModalData.id,
+        project_id: project.id,
+      })
+      setAddTaskModalData(null)
+    }
     refetch()
   }
 
@@ -1341,15 +1399,14 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-hint)' }}>{done}/{mTasks.length} Tasks</div>
                         <strong style={{ fontSize: '0.9rem', color: 'var(--royal)' }}>{pct}% Complete</strong>
                       </div>
-                      <button className="btn-outline" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => setAddTaskModalData(m)}>+ Create Module</button>
                     </div>
                   </div>
                   {mTasks.length > 0 && (
                     <table className="data-table">
-                      <thead><tr><th>Task</th><th>Assigned To</th><th>Deadline</th><th>Status</th><th>Drive</th></tr></thead>
+                      <thead><tr><th>Task</th><th>Assigned To</th><th>Deadline</th><th>Status</th><th>Drive</th><th>Actions</th></tr></thead>
                       <tbody>
                         {mTasks.map(t => (
-                          <TaskRow key={t.id} task={t} studentName={graph.usersById[t.assigned_student_id]?.name} onOpenDrive={() => window.open(t.drive_folder_link || '#', '_blank')} />
+                          <TaskRow key={t.id} task={t} studentName={graph.usersById[t.assigned_student_id]?.name} onOpenDrive={() => window.open(t.drive_folder_link || '#', '_blank')} onEdit={() => setEditingTask(t)} />
                         ))}
                       </tbody>
                     </table>
@@ -1361,28 +1418,18 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
             {directProjectTasks.length > 0 && (
               <div className="card" style={{ padding: 20 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-head)' }}>General Tasks</h3>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>Tasks linked to project without a module.</p>
-                  </div>
+
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-hint)' }}>
                         {directProjectTasks.filter((task) => task.status === 'completed').length}/{directProjectTasks.length} Tasks
                       </div>
                     </div>
-                    <button
-                      className="btn-outline"
-                      style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                      onClick={() => setAddTaskModalData({ id: null, name: 'General Tasks' })}
-                    >
-                      + Create Module
-                    </button>
                   </div>
                 </div>
 
                 <table className="data-table">
-                  <thead><tr><th>Task</th><th>Assigned To</th><th>Deadline</th><th>Status</th><th>Drive</th></tr></thead>
+                  <thead><tr><th>Task</th><th>Assigned To</th><th>Deadline</th><th>Status</th><th>Drive</th><th>Actions</th></tr></thead>
                   <tbody>
                     {directProjectTasks.map((task) => (
                       <TaskRow
@@ -1390,6 +1437,7 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
                         task={task}
                         studentName={graph.usersById[task.assigned_student_id]?.name}
                         onOpenDrive={() => window.open(task.drive_folder_link || '#', '_blank')}
+                        onEdit={() => setEditingTask(task)}
                       />
                     ))}
                   </tbody>
@@ -1506,25 +1554,31 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
         )}
       </div>
 
-      {/* Create Module Modal */}
-      {addTaskModalData && (
-        <Modal isOpen={!!addTaskModalData} onClose={() => setAddTaskModalData(null)} title="Create Module">
+      {/* Create / Edit Task Modal */}
+      {(addTaskModalData || editingTask) && (
+        <Modal 
+          isOpen={!!(addTaskModalData || editingTask)} 
+          onClose={() => { setAddTaskModalData(null); setEditingTask(null); }} 
+          title={editingTask ? "Edit Task" : "Create Task"}
+        >
           <form onSubmit={handleAddTask} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ background: 'var(--royal-faint)', padding: '10px 14px', borderRadius: 8, fontSize: '0.85rem', color: 'var(--royal)', fontWeight: 600 }}>
-              Module: {addTaskModalData.name}
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Module Name</label>
+              <input name="module_name" defaultValue={editingTask?.module_name || ''} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} placeholder="e.g. frontend, backend, or leave blank for General Tasks" />
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Task Title</label>
-              <input name="title" required style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} />
+              <input name="title" required defaultValue={editingTask?.title || ''} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} />
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Description</label>
-              <textarea name="description" rows={3} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} />
+              <textarea name="description" rows={3} defaultValue={editingTask?.description || ''} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Assign To</label>
-                <select name="assigned_student_id" required style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)', background: '#fff' }}>
+                <select name="assigned_student_id" required defaultValue={editingTask?.assigned_student_id || ''} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)', background: '#fff' }}>
                   <option value="">Select Team Member...</option>
                   {projectAssignableStudents.map((student) => (
                     <option key={student.student_id} value={student.student_id}>
@@ -1542,7 +1596,7 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Deadline</label>
-                <input type="date" name="deadline" required style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} />
+                <input type="date" name="deadline" required defaultValue={editingTask?.deadline ? editingTask.deadline.split('T')[0] : ''} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} />
               </div>
             </div>
 
@@ -1599,8 +1653,10 @@ function ProjectDetail({ graph, project, onBack, refetch, openReview }) {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
-              <button type="button" className="btn-outline" onClick={() => setAddTaskModalData(null)}>Cancel</button>
-              <button type="submit" className="btn-primary" disabled={projectAssignableStudents.length === 0}>Create Module</button>
+              <button type="button" className="btn-outline" onClick={() => { setAddTaskModalData(null); setEditingTask(null); }}>Cancel</button>
+              <button type="submit" className="btn-primary" disabled={projectAssignableStudents.length === 0}>
+                {editingTask ? "Save Changes" : "Create Task"}
+              </button>
             </div>
           </form>
         </Modal>
@@ -1638,6 +1694,16 @@ function openExternalLink(url) {
 // 2. Team members
 // ─────────────────────────────────────────────────────────────
 function CoordStudents({ graph }) {
+  const [selectedProject, setSelectedProject] = useState('All')
+
+  const uniqueProjects = useMemo(() => {
+    const names = new Set()
+    graph.projects.forEach(p => {
+      if (p.title) names.add(p.title)
+    })
+    return ['All', ...Array.from(names).sort((a,b) => a.localeCompare(b))]
+  }, [graph])
+
   const students = useMemo(() => {
     const list = []
     const map = new Map() // student_id -> aggregate
@@ -1700,8 +1766,14 @@ function CoordStudents({ graph }) {
       s.progress = s.tasksTotal > 0 ? Math.round((s.tasksDone / s.tasksTotal) * 100) : 0
       list.push(s)
     }
-    return list.sort((a,b) => a.name.localeCompare(b.name))
-  }, [graph])
+    
+    let filteredList = list
+    if (selectedProject !== 'All') {
+      filteredList = filteredList.filter(s => s.projects.includes(selectedProject))
+    }
+    
+    return filteredList.sort((a,b) => a.name.localeCompare(b.name))
+  }, [graph, selectedProject])
 
   return (
     <div style={{ padding: '0 20px 40px', overflowY: 'auto', height: '100%' }}>
@@ -1715,7 +1787,18 @@ function CoordStudents({ graph }) {
       </div>
 
       <div className="card">
-        <div className="card-head"><h2 className="card-title">Team Member Directory</h2></div>
+        <div className="card-head">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'flex-start' }}>
+            <h2 className="card-title" style={{ margin: 0 }}>Team Member Directory</h2>
+            <select 
+              value={selectedProject} 
+              onChange={(e) => setSelectedProject(e.target.value)}
+              style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--royal-border)', fontSize: '0.85rem' }}
+            >
+              {uniqueProjects.map(p => <option key={p} value={p}>{p === 'All' ? 'All Projects' : p}</option>)}
+            </select>
+          </div>
+        </div>
         <table className="data-table">
           <thead><tr><th>Team Member Name</th><th>Roll No.</th><th>Email</th><th>Phone</th><th>Projects</th><th>Progress</th><th>Status</th></tr></thead>
           <tbody>
@@ -2314,7 +2397,27 @@ function CoordSchedule({ graph, openSchedule }) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <strong style={{ fontSize: '1rem', color: 'var(--text-head)', display: 'block', marginBottom: 4 }}>{s.title}</strong>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>📍 {s.location || 'Online'} &nbsp;·&nbsp; 🕒 {s.time}</span>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 4 }}>
+                    <span>📍 {s.location || 'Online'} &nbsp;·&nbsp; 🕒 {s.time}</span>
+                    {s.project_id && (
+                      <span>📁 {graph.projects.find(p => p.id === s.project_id)?.title || 'Project'}</span>
+                    )}
+                  </div>
+                  {s.team_members && s.team_members.length > 0 && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-body)', marginBottom: 4 }}>
+                      <strong style={{ color: 'var(--text-head)' }}>Students:</strong> {
+                        s.team_members.map(email => {
+                          const id = `student-${String(email || '').trim().toLowerCase().replace(/[^a-z0-9]+/gi, '-')}`
+                          return graph.usersById[id]?.name || email
+                        }).join(', ')
+                      }
+                    </div>
+                  )}
+                  {s.note && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-hint)', fontStyle: 'italic' }}>
+                      {s.note}
+                    </div>
+                  )}
                 </div>
                 <span className="badge badge-green">UPCOMING</span>
               </div>
@@ -2326,9 +2429,42 @@ function CoordSchedule({ graph, openSchedule }) {
   )
 }
 
-function ScheduleModal({ isOpen, onClose, coordinatorId, projects, onScheduled }) {
+function ScheduleModal({ isOpen, onClose, coordinatorId, graph, onScheduled }) {
+  const projects = graph?.projects || []
+  const [selectedProjectId, setSelectedProjectId] = useState('')
+  const [selectedMembers, setSelectedMembers] = useState([])
+  const [error, setError] = useState('')
+
+  const projectMembers = useMemo(() => {
+    if (!selectedProjectId) return []
+    const students = graph?.projectStudents?.filter(ps => ps.project_id === selectedProjectId) || []
+    return students.map(s => {
+      const user = graph?.usersById?.[s.student_id]
+      return {
+        id: s.student_id || s.student_email,
+        email: s.student_email,
+        name: user?.name || s.student_name || s.student_email || 'Unknown'
+      }
+    })
+  }, [selectedProjectId, graph])
+
+  useEffect(() => {
+    setSelectedMembers([])
+    setError('')
+  }, [selectedProjectId, isOpen])
+
+  const toggleMember = (email) => {
+    setError('')
+    setSelectedMembers(prev => prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email])
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (selectedProjectId && selectedMembers.length === 0) {
+      setError('Please select at least one student for the review.')
+      return
+    }
+    setError('')
     const fd = new FormData(e.target)
     await createMeeting({
       coordinator_id: coordinatorId,
@@ -2338,6 +2474,7 @@ function ScheduleModal({ isOpen, onClose, coordinatorId, projects, onScheduled }
       time: fd.get('time'),
       location: fd.get('location'),
       note: fd.get('note'),
+      team_members: selectedMembers,
     })
     onScheduled()
     onClose()
@@ -2346,6 +2483,11 @@ function ScheduleModal({ isOpen, onClose, coordinatorId, projects, onScheduled }
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Schedule Review">
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {error && (
+          <div style={{ padding: '10px', background: '#fee2e2', color: '#b91c1c', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600 }}>
+            {error}
+          </div>
+        )}
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Title</label>
           <input name="title" required style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} />
@@ -2362,11 +2504,39 @@ function ScheduleModal({ isOpen, onClose, coordinatorId, projects, onScheduled }
         </div>
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Related Project (Optional)</label>
-          <select name="project_id" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)', background: '#fff' }}>
+          <select 
+            name="project_id" 
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProjectId(e.target.value)}
+            style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)', background: '#fff' }}
+          >
             <option value="">None</option>
             {projects?.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
           </select>
         </div>
+
+        {selectedProjectId && (
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Select Students <span style={{ color: 'var(--red)' }}>*</span></label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '10px', border: '1px solid var(--royal-border)', borderRadius: 8, background: 'var(--page-bg)', maxHeight: 150, overflowY: 'auto' }}>
+              {projectMembers.length === 0 ? (
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-hint)' }}>No students assigned to this project yet.</div>
+              ) : (
+                projectMembers.map(m => (
+                  <label key={m.email} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedMembers.includes(m.email)} 
+                      onChange={() => toggleMember(m.email)} 
+                    />
+                    {m.name} {m.name !== m.email ? `(${m.email})` : ''}
+                  </label>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, marginBottom: 6 }}>Location / Meet Link</label>
           <input name="location" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--royal-border)' }} />
